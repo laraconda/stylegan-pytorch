@@ -1,8 +1,8 @@
 import torch
 from torch import nn
-from models.utils import NormalConv2d, NormalLinear
-from settings import BASE_DIM
-from device import device
+from src.models.utils import NormalConv2d, NormalLinear
+from src.settings import BASE_DIM
+from src.device import device
 
 
 class AdaIn(nn.Module):

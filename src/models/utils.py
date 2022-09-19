@@ -1,5 +1,5 @@
 from torch import nn
-from settings import STD
+from src.settings import STD
 
 
 class NormalConv2d(nn.Conv2d):

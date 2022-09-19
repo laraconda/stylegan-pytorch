@@ -3,9 +3,9 @@ from torch import nn
 import torch
 import random
 import torch.nn.functional as F
-from models.generator.blocks import FirstSynthesisBlock, SynthesisBlock
-from models.utils import NormalLinear, ToRGB
-from settings import BASE_DIM
+from src.models.generator.blocks import FirstSynthesisBlock, SynthesisBlock
+from src.models.utils import NormalLinear, ToRGB
+from src.settings import BASE_DIM
 
 
 class MappingNetwork(nn.Module):

@@ -2,7 +2,7 @@ from math import log2
 from torch import nn
 import torch
 import torch.nn.functional as F
-from models.utils import NormalConv2d, NormalLinear, FromRGB
+from src.models.utils import NormalConv2d, NormalLinear, FromRGB
 
 
 class DiscriminatorBlock(nn.Module):
