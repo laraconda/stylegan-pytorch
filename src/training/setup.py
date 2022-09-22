@@ -47,6 +47,7 @@ def get_init_training_vars(checkpoint):
         'alpha_steps_completed': alpha_steps_completed,
         'run_id': run_id,
         'log_filename_suffix': log_filename_suffix,
+        'start_alpha': start_alpha
     }
     return init_training_vars
 
