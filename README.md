@@ -9,3 +9,6 @@ Based heavily on the works of:
 Training
 Run (while on the root folder):
     python -m src.training.train
+
+Important
+This project does not yet support single channel image datasets. It should not be difficult to change for your specific needs.
