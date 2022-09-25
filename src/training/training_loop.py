@@ -10,6 +10,7 @@ from src.settings import (
     N_SAMPLES_RES, COLLECT_GARBAGE_EVERY_X_ITERATIONS
 )
 from src.training.train_batch import train_batch
+from src.training.save import save_checkpoint
 from src.device import device
 
 
@@ -18,7 +19,7 @@ class Resolution:
         if res in RESOLUTIONS:
             self.res = res
             self.count_batch = 0
-            self.save_every_ = SAVE_EVERY_X_ITERATIONS[str(self.res)]
+            self.save_every_x_iterations = SAVE_EVERY_X_ITERATIONS[str(self.res)]
             self.batch_size = RES_BATCH_SIZE[str(self.res)]
             if init_training_vars:
                 self.start_alpha = init_training_vars['start_alpha']
@@ -50,11 +51,12 @@ class TrainingLoop:
         self.dataset_split = self._split_dataset()
         self.stgan.train()
         self.disc.train()
+        self.run_id = init_training_vars['run_id']
         self.start_res = init_training_vars['start_res']
         if self.start_res not in RESOLUTIONS:
             raise ValueError('Resolution not valid. See settings.')
         self.write_batch_tensorboard = PRINT_BATCH_EVERY_X_ITERATIONS * 2
-        self.count_batch_global = 0
+        self.count_batch_global = init_training_vars['count_batch_global']
         self.resolutions_list = self._get_resolutions_list()
         self.res_idx = 0
         self.resolution = Resolution(self.start_res, init_training_vars)
@@ -99,6 +101,20 @@ class TrainingLoop:
                                 gen_loss.mean(),
                                 disc_loss.mean()
                             )
+                        )
+                    if (
+                        self.count_batch_global %
+                        self.resolution.save_every_x_iterations == 0
+                    ) and self.resolution.count_batch > 0:
+                        save_checkpoint(
+                            self.stgan,
+                            self.disc,
+                            self.g_optim,
+                            self.d_optim,
+                            self.resolution.res,
+                            self.run_id,
+                            self.count_batch_global,
+                            self.resolution.alpha_steps_completed
                         )
 
                     self.count_batch_global += 1

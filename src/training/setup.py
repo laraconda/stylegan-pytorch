@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import torch
 from torch.optim import Adam
 from src.settings import DISC_LRATE, BETAS, EPS
@@ -20,22 +20,21 @@ def get_checkpoint():
 
 def get_init_training_vars(checkpoint):
     if checkpoint:
-        print('Loading from: {}/{}'.format(CHECKPOINTS_PATH, CHECKPOINT_NAME))
+        print('Loading training from: {}/{}.pth'.format(CHECKPOINTS_PATH, CHECKPOINT_NAME))
         start_res = checkpoint['resolution']
-        count_batch = checkpoint['global_step'] + 1
+        count_batch_global = checkpoint['count_batch_global'] + 1
         alpha_steps_completed = checkpoint['alpha_steps_completed']
         run_id = checkpoint['run_id']
-        log_filename_suffix = str(count_batch)
+        log_filename_suffix = str(count_batch_global)
     else:
-        print('Initializing training data with default values.')
+        print('Initializing training data with default values (no checkpoint).')
         start_res = 8
-        count_batch = 0
+        count_batch_global = 0
         alpha_steps_completed = 0
-        run_id = str(datetime.datetime.now().strftime("%d_%m-%H:%M"))
+        run_id = str(datetime.now().strftime("%d_%m-%H:%M"))
         log_filename_suffix = ''
     if ALPHA_STEPS > 1:
         start_alpha = (alpha_steps_completed) * (1 / (ALPHA_STEPS - 1))
-        # print('start alpha: {}'.format(start_alpha))
     else:
         start_alpha = 1
     if start_alpha == 0:
@@ -43,10 +42,10 @@ def get_init_training_vars(checkpoint):
 
     init_training_vars = {
         'start_res': start_res,
-        'count_batch': count_batch,
+        'count_batch_global': count_batch_global,
         'alpha_steps_completed': alpha_steps_completed,
         'run_id': run_id,
-        'log_filename_suffix': log_filename_suffix,
+        'log_filename_suffix': log_filename_suffix,  # for summary writter
         'start_alpha': start_alpha
     }
     return init_training_vars

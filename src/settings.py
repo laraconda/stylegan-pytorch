@@ -13,10 +13,10 @@ LRATE = 0.00015
 BETAS = (0, 0.99)
 EPS = 1e-7
 
-CHECKPOINTS_PATH = 'checkpoints/'
-DATASETS_DIR = 'datasets/'
-START_FROM_CHECKPOINT = False
-CHECKPOINT_NAME = None  # not including the extension .pth
+CHECKPOINTS_PATH = 'checkpoints'
+DATASETS_DIR = 'datasets'
+START_FROM_CHECKPOINT = True
+CHECKPOINT_NAME = '24_09-18:53-0'  # not including the extension .pth
 
 GRADIENT_PENALTY_LAMBDA = 3
 STGAN_LRATE = LRATE
