@@ -22,14 +22,14 @@ def get_init_training_vars(checkpoint):
     if checkpoint:
         print('Loading training from: {}/{}.pth'.format(CHECKPOINTS_PATH, CHECKPOINT_NAME))
         start_res = checkpoint['resolution']
-        count_batch_global = checkpoint['count_batch_global'] + 1
+        global_step = checkpoint['global_step'] + 1
         alpha_steps_completed = checkpoint['alpha_steps_completed']
         run_id = checkpoint['run_id']
-        log_filename_suffix = str(count_batch_global)
+        log_filename_suffix = str(global_step)
     else:
         print('Initializing training data with default values (no checkpoint).')
         start_res = 8
-        count_batch_global = 0
+        global_step = 0
         alpha_steps_completed = 0
         run_id = str(datetime.now().strftime("%d_%m-%H:%M"))
         log_filename_suffix = ''
@@ -42,7 +42,7 @@ def get_init_training_vars(checkpoint):
 
     init_training_vars = {
         'start_res': start_res,
-        'count_batch_global': count_batch_global,
+        'global_step': global_step,
         'alpha_steps_completed': alpha_steps_completed,
         'run_id': run_id,
         'log_filename_suffix': log_filename_suffix,  # for summary writter

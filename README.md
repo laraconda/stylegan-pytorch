@@ -6,9 +6,16 @@ Based heavily on the works of:
 - Sharon Zhou et al. (https://www.coursera.org/specializations/generative-adversarial-networks-gans)
 - SiskonEmilia (https://github.com/SiskonEmilia/StyleGAN-PyTorch)
 
+Requirements
+    pytorch
+    tensorboard
+
 Training
 Run (while on the root folder):
     python -m src.training.train
+
+Visualizing with tensorboard
+    tensorboard --logdir=summaries/[name]
 
 Important
 This project does not yet support single channel image datasets. It should not be difficult to change for your specific needs.

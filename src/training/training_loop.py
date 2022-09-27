@@ -7,18 +7,20 @@ from torchsummary import summary
 from src.settings import (
     SHOW_NETWORK_SUMMARY, PRINT_BATCH_EVERY_X_ITERATIONS, BASE_DIM,
     SAVE_EVERY_X_ITERATIONS, RESOLUTIONS, RES_BATCH_SIZE, ALPHA_STEPS,
-    N_SAMPLES_RES, COLLECT_GARBAGE_EVERY_X_ITERATIONS
+    N_SAMPLES_RES, COLLECT_GARBAGE_EVERY_X_ITERATIONS,
+    WRITE_BATCH_EVERY_X_ITERATIONS, SUMMARIES_DIR
 )
 from src.training.train_batch import train_batch
 from src.training.save import save_checkpoint
 from src.device import device
+from src.mywriter import MyWriter, BatchInfo
 
 
 class Resolution:
     def __init__(self, res, init_training_vars=None):
         if res in RESOLUTIONS:
             self.res = res
-            self.count_batch = 0
+            self.resolution_step = 0
             self.save_every_x_iterations = SAVE_EVERY_X_ITERATIONS[str(self.res)]
             self.batch_size = RES_BATCH_SIZE[str(self.res)]
             if init_training_vars:
@@ -30,7 +32,7 @@ class Resolution:
         else:
             raise ValueError('Resolution not valid. See settings.')
 
-    def _get_dataset_transform(self):
+    def get_dataset_transform(self):
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Resize(self.res),  # Resize to the same size
@@ -53,20 +55,25 @@ class TrainingLoop:
         self.disc.train()
         self.run_id = init_training_vars['run_id']
         self.start_res = init_training_vars['start_res']
+        self.summary_dir = '{}/{}'.format(SUMMARIES_DIR, self.run_id)
+        self.global_step = init_training_vars['global_step']
+        self.log_filename_suffix = init_training_vars['log_filename_suffix']
+        self.writer = MyWriter(
+            self.summary_dir, self.log_filename_suffix, self.disc, self.stgan
+        )
         if self.start_res not in RESOLUTIONS:
             raise ValueError('Resolution not valid. See settings.')
         self.write_batch_tensorboard = PRINT_BATCH_EVERY_X_ITERATIONS * 2
-        self.count_batch_global = init_training_vars['count_batch_global']
         self.resolutions_list = self._get_resolutions_list()
         self.res_idx = 0
         self.resolution = Resolution(self.start_res, init_training_vars)
 
     def run(self):
         if SHOW_NETWORK_SUMMARY:
-            self.show_network_summary()
+            self._show_network_summary()
         while self.res_idx < len(self.resolutions_list):
             print(f'Beginning of res: {self.resolution.res}')
-            self.dataset.transform = self.resolution._get_dataset_transform()
+            self.dataset.transform = self.resolution.get_dataset_transform()
             self.disc.start_at_resolution = self.resolution.res
             self.stgan.stop_at_resolution = self.resolution.res
             alpha_steps_left = ALPHA_STEPS - self.resolution.alpha_steps_completed
@@ -81,7 +88,7 @@ class TrainingLoop:
                     shuffle=True
                 )
                 for images in dataloader:
-                    if self.count_batch_global % COLLECT_GARBAGE_EVERY_X_ITERATIONS:
+                    if self.global_step % COLLECT_GARBAGE_EVERY_X_ITERATIONS:
                         gc.collect()  # collect garbage
                     images = images[0]  # excluding labels
                     images = images.to(device)
@@ -93,19 +100,19 @@ class TrainingLoop:
                         images
                     )
                     fake_images, gen_loss, disc_loss, real_pred, fake_pred = train_batch_result
-                    if self.count_batch_global % PRINT_BATCH_EVERY_X_ITERATIONS == 0:
-                        print(
-                            'res: {}. alpha: {}. count batch: {}. gen_loss: {}. disc_loss: {}'.format(
-                                self.resolution.res, alpha,
-                                self.count_batch_global,
-                                gen_loss.mean(),
-                                disc_loss.mean()
-                            )
-                        )
+                    batchinfo = BatchInfo(
+                        fake_images,
+                        images,
+                        gen_loss,
+                        disc_loss,
+                        real_pred,
+                        fake_pred,
+                        self.global_step
+                    )
                     if (
-                        self.count_batch_global %
+                        self.global_step %
                         self.resolution.save_every_x_iterations == 0
-                    ) and self.resolution.count_batch > 0:
+                    ) and self.resolution.resolution_step > 0:
                         save_checkpoint(
                             self.stgan,
                             self.disc,
@@ -113,22 +120,50 @@ class TrainingLoop:
                             self.d_optim,
                             self.resolution.res,
                             self.run_id,
-                            self.count_batch_global,
+                            self.global_step,
                             self.resolution.alpha_steps_completed
                         )
+                    if self.global_step % PRINT_BATCH_EVERY_X_ITERATIONS == 0:
+                        self._log_batch(alpha, batchinfo)
+                    if (
+                        self.global_step % WRITE_BATCH_EVERY_X_ITERATIONS == 0 or
+                        (
+                            self.global_step %
+                            self.resolution.save_every_x_iterations == 0 and
+                            self.global_step > 0
+                        )  # writing on save too
+                    ):
+                        self.writer.write_batch(batchinfo)
 
-                    self.count_batch_global += 1
-                    self.resolution.count_batch += 1
-                self.alpha_steps_completed += 1
-            self.end_resolution()
+                    self.global_step += 1
+                    self.resolution.resolution_step += 1
+                self.resolution.alpha_steps_completed += 1
+            self._end_resolution()
+        self.stop()
 
-    def end_resolution(self):
+    def stop(self):
+        self.writer.close()
+
+    def _log_batch(self, alpha, batchinfo):
+        print(
+            'res: {}. alpha: {}. global batch: {}. gen loss: {}. disc loss: {}'
+            .format(
+                self.resolution.res,
+                alpha,
+                self.global_step,
+                batchinfo.gen_loss.mean(),
+                batchinfo.disc_loss.mean()
+            )
+        )
+
+    def _end_resolution(self):
+        print(f'End of res {self.resolution.res}')
         self.res_idx += 1
         if self.res_idx < len(self.resolutions_list):
             next_res = self.resolutions_list[self.res_idx]
             self.resolution = Resolution(next_res)
 
-    def show_network_summary(self):
+    def _show_network_summary(self):
         self.disc.start_at_resolution = 8  # needed for the summary
         print('--- Discriminator Summary ---')
         print(summary(self.disc, input_size=(3, 8, 8)))
