@@ -16,6 +16,9 @@ class MyWriter:
         self.disc = disc
         self.stgan = stgan
 
+    def close(self):
+        self.writer.close()
+
     def _unnormalize(self, image):
         MEAN = tensor([0.5, 0.5, 0.5]).to(device)
         STD = tensor([0.5, 0.5, 0.5]).to(device)
