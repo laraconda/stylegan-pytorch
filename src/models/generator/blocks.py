@@ -28,7 +28,7 @@ class AdaIn(nn.Module):
         Parameters
         ----------
         channels: int
-            Number of channels of this instance
+            Number of channels of the input and output
         """
         super(AdaIn, self).__init__()
         self.inorm = nn.InstanceNorm2d(channels)
@@ -140,9 +140,9 @@ class BasicSynthesisBlock(nn.Module):
         resolution: int
             Resolution of the image tensors the block is going to process
         input_channels: int
-            Number of input channels for this block
+            Number of channels of the input
         output_channels:
-            Number of output channels for this block
+            Number of output channels of the output
         """
         super(BasicSynthesisBlock, self).__init__()
         self.conv1 = NormalConv2d(input_channels, input_channels, 3, padding='same')
@@ -207,7 +207,7 @@ class FirstSynthesisBlock(nn.Module):
             Resolution of the image tensors the block is going to process
 
         channels: int
-            Number of channels of this block
+            Number of channels of the output of this block
 
         """
         super(FirstSynthesisBlock, self).__init__()
@@ -259,9 +259,9 @@ class SynthesisBlock(nn.Module):
         resolution: int
             Resolution of the image tensors this block is going to process
         input_channels: int
-            Number of input channels for this block
+            Number channels in the input
         output_channels: int
-            Number of output channels for this block
+            Number of channels in the output of this block
         """
         super(SynthesisBlock, self).__init__()
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)

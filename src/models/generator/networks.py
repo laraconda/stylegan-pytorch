@@ -94,7 +94,7 @@ class SynthesisNetwork(nn.Module):
 
     def _upsample2x(self, image):
         """
-        Doubles the resolution of 'image'
+        Doubles the resolution of 'image' using a bilinear interpolation
 
         Parameters
         ----------
@@ -143,7 +143,7 @@ class SynthesisNetwork(nn.Module):
         Returns
         -------
         int
-            The id (based on the parameter 'conv_blocks') of the block that
+            The id (based on the attribute 'conv_blocks') of the block that
             corresponds to the resolution 'res'
 
         Raises
@@ -169,7 +169,7 @@ class SynthesisNetwork(nn.Module):
         Returns
         -------
         int
-            The resolution that corresponds to the block identified by 'block_id'
+            The resolution that corresponds to the block identified by 'block_id'.
             It is always a power of 2
         """
         return 2**(block_id + 2)
