@@ -11,7 +11,8 @@ from src.settings import BASE_DIM
 class MappingNetwork(nn.Module):
     """
     Mapping Network of the StyleGAN architecture.
-    Network that maps a z tensor into a w tensor
+
+    Network that maps a z tensor into a w tensor.
 
     Attributes
     ----------

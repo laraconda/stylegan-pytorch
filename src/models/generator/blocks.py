@@ -7,7 +7,7 @@ from src.device import device
 
 class AdaIn(nn.Module):
     """
-    AdaIn layer. Performs the AdaIN operation on a tensor input
+    AdaIn block. Performs the AdaIN operation on a tensor input.
 
     Attributes
     ----------
@@ -62,7 +62,7 @@ class AdaIn(nn.Module):
 
 class Noise(nn.Module):
     """
-    Noise layer. Injects random noise into an input tensor
+    Noise layer. Injects random noise into an input tensor.
 
     Attributes
     ----------
