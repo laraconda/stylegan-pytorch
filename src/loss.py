@@ -1,3 +1,7 @@
+"""
+Implementation of necessary functions used on the computation of the Wasserstein Loss.
+"""
+
 import torch
 from src.device import device
 
@@ -5,11 +9,20 @@ from src.device import device
 def get_gradient(disc, real_images, fake_images):
     '''
     Return the gradient of the critic's scores with respect to mixes of real and fake images.
-    :crit: the critic model
-    :real_images: a batch of real images
-    :fake_images: a batch of fake images
-    :epsilon: a vector of the uniformly random proportions of real/fake per mixed image
-    :returns: gradient: the gradient of the critic's scores, with respect to the mixed image
+
+    Parameters
+    ----------
+    disc: Discriminator
+        The critic model.
+    real_images: tensor
+        Batch of real images.
+    fake_images: tensor
+        A batch of fake images.
+
+    Returns
+    -------
+    float
+        the gradient of the critic's scores, with respect to the mixed image.
     '''
     epsilon = torch.rand((real_images.size(0), 1, 1, 1), device=device, requires_grad=True)
     mixed_images = real_images * epsilon + fake_images * (1 - epsilon)
@@ -28,13 +41,23 @@ def get_gradient(disc, real_images, fake_images):
 
 def gradient_penalty(disc, real_images, fake_images):
     '''
-    Return the gradient penalty, given a gradient.
+    Returns the gradient penalty, given a gradient.
     Given a batch of image gradients, you calculate the magnitude of each image's gradient
     and penalize the mean quadratic distance of each magnitude to 1.
-    :crit: the critic model
-    :real_images: a batch of real images
-    :fake_images: a batch of fake images
-    :returns: penalty: the gradient penalty
+
+    Parameters
+    ----------
+    disc: Discriminator
+        the critic model.
+    real_images: tensor
+        A batch of real images.
+    fake_images: tensor
+        A batch of fake images.
+
+    Returns
+    -------
+    float
+        the gradient penalty
     '''
     gradient = get_gradient(disc, real_images, fake_images)
     # Flatten the gradients so that each row captures one image

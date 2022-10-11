@@ -1,3 +1,7 @@
+"""
+Definition of networks that compose the StyleGAN generator network.
+"""
+
 from math import log2
 from torch import nn
 import torch
@@ -12,17 +16,17 @@ class MappingNetwork(nn.Module):
     """
     Mapping Network of the StyleGAN architecture.
 
-    Network that maps a z tensor into a w tensor.
+    Maps a z tensor into a w tensor.
 
     Attributes
     ----------
     fcs: Sequential
-        A sequence of dense layers
+        A sequence of dense layers.
 
     Methods
     -------
     forward(z)
-        Passes the 'z' tensor through the sequence 'fcs'
+        Passes the `z` tensor through the sequence `fcs`.
     """
     def __init__(self):
         super(MappingNetwork, self).__init__()
@@ -35,17 +39,17 @@ class MappingNetwork(nn.Module):
 
     def forward(self, z):
         """
-        Passes the 'z' tensor through the sequence 'fcs'
+        Passes the `z` tensor through the sequence `fcs`.
 
         Parameters
         ----------
         z: tensor
-            The tensor to be mapped
+            The tensor to be mapped.
 
         Returns
         -------
         tensor
-            The result of the mapping, a w tensor
+            The result of the mapping, a w tensor.
         """
         return self.fcs(z)
 
@@ -53,19 +57,21 @@ class MappingNetwork(nn.Module):
 class SynthesisNetwork(nn.Module):
     """
     Synthesis Network of the StyleGAN architecture.
-    Progressively grows an image with the help of a set of w styles
+    Progressively grows an image with the help of a set of w styles.
 
     Attributes
     ----------
     conv_blocks: ModuleList
-        A list of synthesis blocks
+        A list of synthesis blocks.
     to_rgb: ModuleList
-        A list of ToRGB layers
+        A list of ToRGB layers.
 
     Methods
     -------
     forward(z, w1, w2, alpha=1, stop_at_resolution=1024, style_mixing=False)
-        Produces an output image of resolution 'stop_at_resolution'
+        Produces an output image of resolution `stop_at_resolution`.
+    blocktores(block_id)
+        Returns the resolution that corresponds to the block identified by `block_id`.
     """
     def __init__(self):
         super(SynthesisNetwork, self).__init__()
@@ -95,62 +101,62 @@ class SynthesisNetwork(nn.Module):
 
     def _upsample2x(self, image):
         """
-        Doubles the resolution of 'image' using a bilinear interpolation
+        Doubles the resolution of `image` using a bilinear interpolation.
 
         Parameters
         ----------
         image: tensor
-            Image to upsample
+            Image to upsample.
 
         Returns
         -------
         tensor
-            The upsampled image
+            The upsampled image.
         """
         return F.interpolate(image, scale_factor=2, mode='bilinear')
 
     def _combine_images(self, image_a, image_b, alpha):
         """
-        Combines 'image_a' and 'image_b' into one image, with the level
-        of influence of 'image_a' over the final image determined by 'alpha'
+        Combines `image_a` and `image_b` into one image, with the level
+        of influence of `image_a` over the final image determined by `alpha`.
 
         Parameters
         ----------
-            image_a: tensor
-                The first image to be combined
-            image_b: tensor
-                The second image to be combined
-            alpha: float
-                The degree of influence of 'image_a' over the final image.
-                Goes from 0 to 1.
+        image_a: tensor
+            The first image to be combined.
+        image_b: tensor
+            The second image to be combined.
+        alpha: float
+            The degree of influence of `image_a` over the final image.
+            Goes from 0 to 1.
 
         Returns
         -------
         tensor
-            The image resulting from combining the two images, given alpha
+            The image resulting from combining the two images, given alpha.
         """
         return torch.lerp(image_a, image_b, alpha)
 
     @classmethod
     def _restoblock(cls, res):
         """
-        Returns the block id of the block responsible for handling the resolution 'res'
+        Returns the block id of the block responsible for handling the resolution `res`.
 
         Parameters
         ----------
         res: int
-            An image resolution, it must be a power of 2
+            An image resolution, it must be a power of 2.
 
         Returns
         -------
         int
-            The id (based on the attribute 'conv_blocks') of the block that
-            corresponds to the resolution 'res'
+            The id (based on the attribute `conv_blocks`) of the block that
+            corresponds to the resolution `res`.
 
         Raises
         ------
         AssertionError
-            If the image resolution is not a power of two
+            If the image resolution is not a power of two.
         """
         log2res = log2(res)
         assert log2res.is_integer(), "stop_at_resolution should be a power of 2."
@@ -158,49 +164,49 @@ class SynthesisNetwork(nn.Module):
         return block_id
 
     @classmethod
-    def _blocktores(cls, block_id):
+    def blocktores(cls, block_id):
         """
-        Returns the resolution that corresponds to the block identified by 'block_id'
+        Returns the resolution that corresponds to the block identified by `block_id`.
 
         Parameters
         ----------
         block_id: int
-            The identifier of the block whose resolution is needed
+            The identifier of the block whose resolution is needed.
 
         Returns
         -------
         int
-            The resolution that corresponds to the block identified by 'block_id'.
-            It is always a power of 2
+            The resolution that corresponds to the block identified by `block_id`.
+            It is always a power of 2.
         """
         return 2**(block_id + 2)
 
     def _block_sequential_exec(self, w1, w2, alpha, stop_at_resolution, style_mixing):
         """
-        Executes the blocks in 'conv_blocks' in a sequential order thus growing an image
-        as the sequence progresses (progressive growing)
+        Executes the blocks in `conv_blocks` in a sequential order thus growing an image
+        as the sequence progresses (progressive growing).
 
         Parameters
         ----------
-            w1: tensor
-                The first style tensor
-            w2: tensor
-                The second style tensor, used for style mixing
-            alpha: float
-                When combining two images, one being the result of a block and the
-                other being the result of an algorithmic upsample, it determines the
-                influence of one over the other
-            stop_at_resolution: int
-                The progressive growing stops at the resolution set by this parameter
-            style_mixing: bool
-                Controls wheter or not at some random point of the progressive growing
-                the second style tensor 'w2' replaces the first one 'w1'
+        w1: tensor
+            The first style tensor.
+        w2: tensor
+            The second style tensor, used for style mixing.
+        alpha: float
+            When combining two images, one being the result of a block and the
+            other being the result of an algorithmic upsample, it determines the
+            influence of one over the other.
+        stop_at_resolution: int
+            The progressive growing stops at the resolution set by this parameter.
+        style_mixing: bool
+            Controls wheter or not at some random point of the progressive growing
+            the second style tensor `w2` replaces the first one `w1`.
 
         Returns
         -------
         tensor
             An image resulting from the progressive growing of the synthesis network.
-            Its resolution is dictated by 'stop_at_resolution'
+            Its resolution is dictated by `stop_at_resolution`.
         """
         stop_at_block = self._restoblock(stop_at_resolution)
         x = self.conv_blocks[0](w1)
@@ -221,30 +227,30 @@ class SynthesisNetwork(nn.Module):
 
     def forward(self, w1, w2, alpha=1, stop_at_resolution=1024, style_mixing=False):
         """
-        Public method that wraps the '_block_sequential_exec' private method
+        Public method that wraps the `_block_sequential_exec` private method.
 
         Parameters
         ----------
         w1: tensor
-            The first style tensor
+            The first style tensor.
         w2: tensor
-            The second style tensor, used for style mixing
+            The second style tensor, used for style mixing.
         alpha: float, optional
             When combining two images, one being the result of a block and the
             other being the result of an algorithmic upsample, it determines the
-            influence of one over the other (default is 1)
+            influence of one over the other (default is 1).
         stop_at_resolution: int, optional
             The progressive growing stops at the resolution set by this parameter
-            (default is 1024)
+            (default is 1024).
         style_mixing: bool, optional
             Controls wheter or not at some random point of the progressive growing
-            the second style tensor 'w2' replaces the first one 'w1' (default is False)
+            the second style tensor `w2` replaces the first one `w1` (default is False).
 
         Returns
         -------
         tensor
             An image resulting from the progressive growing of the synthesis network.
-            Its resolution is dictated by 'stop_at_resolution'
+            Its resolution is dictated by `stop_at_resolution`.
         """
         return self._block_sequential_exec(w1, w2, alpha, stop_at_resolution, style_mixing)
 
@@ -252,30 +258,29 @@ class SynthesisNetwork(nn.Module):
 class StyleGAN(nn.Module):
     """
     Generator of the StyleGAN architecture.
-    Generates an output image out of a set of random z tensors
+    Generates an output image out of a set of random z tensors.
 
     Attributes
     ----------
     mappn: MappingNetwork
-        Instance of the MappingNetowrk class. It is the first sub-network of this network
+        Instance of the MappingNetowrk class. It is the first sub-network of this network.
     synthn: SynthesisNetwork
-        Instance of the SynthesisNetwork class. It's the second sub-network of this network
+        Instance of the SynthesisNetwork class. It's the second sub-network of this network.
     prob_style_mixing: float
         The probability that the style mixing trick will take effect during a fordward
-        pass of the network
+        pass of the network.
     stop_at_resolution: int
-        The resolution of the resulting image tensor
+        The resolution of the resulting image tensor.
     alpha: float
         The alpha step of the training, if the instance of the network is not being trained,
-        the value should be 1
+        the value should be 1.
 
     Methods
     -------
     forward(z1, z2=None)
-        Returns an output image tensor generated by the network
-
+        Returns an output image tensor generated by the network.
     blocktores(block_id)
-        Returns the resolution that corresponds to the block identified by 'block_id'
+        Returns the resolution that corresponds to the block identified by `block_id`.
     """
     def __init__(self):
         super(StyleGAN, self).__init__()
@@ -287,18 +292,21 @@ class StyleGAN(nn.Module):
 
     def forward(self, z1, z2=None):
         """
+        Returns an output image tensor generated by the network.
+
         Parameters
-        __________
+        ----------
         z1: tensor
-            A random tensor used as a seed to produce a tensor image
+            A random tensor used as a seed to produce a tensor image.
         z2: tensor, optional
             A random tensor used as a seed to produce a tensor image.
             If its None then it won't be used and the style mixing effect won't
-            take place. (default is None)
+            take place (default is None).
+
         Returns
         -------
         tensor
-            Returns an output image tensor generated by the network
+            Returns an output image tensor generated by the network.
         """
         w1 = self.mappn(z1)
         if z2 is not None:
@@ -313,17 +321,17 @@ class StyleGAN(nn.Module):
     @classmethod
     def blocktores(cls, block_id):
         """
-        Returns the resolution that corresponds to the block identified by 'block_id'
+        Returns the resolution that corresponds to the block identified by `block_id`.
 
         Parameters
         ----------
         block_id: int
-            The identifier of the block whose resolution is needed
+            The identifier of the block whose resolution is needed.
 
         Returns
         -------
         int
-            The resolution that corresponds to the block identified by 'block_id'
-            It is always a power of 2
+            The resolution that corresponds to the block identified by `block_id`.
+            It is always a power of 2.
         """
         return SynthesisNetwork.blocktores(block_id)
