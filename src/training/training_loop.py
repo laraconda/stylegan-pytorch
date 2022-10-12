@@ -8,16 +8,16 @@ from numpy import linspace
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchsummary import summary
-from src.settings import (
+from settings import (
     SHOW_NETWORK_SUMMARY, PRINT_BATCH_EVERY_X_ITERATIONS, BASE_DIM,
     SAVE_EVERY_X_ITERATIONS, RESOLUTIONS, RES_BATCH_SIZE, ALPHA_STEPS,
     N_SAMPLES_RES, COLLECT_GARBAGE_EVERY_X_ITERATIONS,
-    WRITE_BATCH_EVERY_X_ITERATIONS, SUMMARIES_DIR
+    WRITE_BATCH_EVERY_X_ITERATIONS, SUMMARIES_DIR, DATASET_CHANNELS
 )
-from src.training.train_batch import train_batch
-from src.training.save import save_checkpoint
-from src.device import device
-from src.mywriter import MyWriter, TrainingBatchInfo
+from training.train_batch import train_batch
+from training.save import save_checkpoint
+from device import device
+from mywriter import MyWriter, TrainingBatchInfo
 
 
 class Resolution:
@@ -91,8 +91,8 @@ class Resolution:
             transforms.Resize(self.res),  # Resize to the same size
             transforms.CenterCrop(self.res),  # Crop to get square area
             transforms.RandomHorizontalFlip(),  # Increase number of samples
-            transforms.Normalize((0.5, 0.5, 0.5),
-                                 (0.5, 0.5, 0.5),)])
+            transforms.Normalize([0.5] * DATASET_CHANNELS,
+                                 [0.5] * DATASET_CHANNELS,)])
         return transform
 
 

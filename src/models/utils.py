@@ -3,7 +3,7 @@ Blocks and layers used by both generator and discriminator.
 """
 
 from torch import nn
-from src.settings import STD
+from settings import STD, DATASET_CHANNELS
 
 
 class NormalConv2d(nn.Conv2d):
@@ -48,44 +48,51 @@ class NormalLinear(nn.Linear):
         self.bias.data.zero_()
 
 
-class FromRGB(nn.Module):
+class FromColorChannels(nn.Module):
     """
-    Block used to transform a RGB tensor image.
+    Block used to transform the number of channels in a tensor image.
 
-    From having 3 channels the tensor image goes to have `out_channels`.
+    From having the number of channels specified in the training dataset the tensor image goes to
+    have an specified number of channels.
 
     Attributes
     ----------
     conv: NormalConv2d
-        2d convolutional layer that receives a tensor with 3 channels and returns a tensor
-        with `out_channels`.
+        2d convolutional layer that receives a tensor with certain number of channels and returns
+        a tensor with `out_channels`.
     act: LeakyReLU
         Activation.
 
     Methods
     -------
     forward(x)
-        Receives an image tensor with 3 channels and returns a tensor with `out_channels`.
+        Receives an image tensor with certain number of channels and returns a tensor
+        with `out_channels`.
     """
-    def __init__(self, out_channels):
+    def __init__(self, out_channels, color_channels=DATASET_CHANNELS):
         """
         Parameters
         ----------
         out_channels: int
             Number of channels of the output.
+        color_channels: int, optional
+            Number of channels in the images of the dataset. For example, the value of this variable
+            for an RGB image would be 3, 1 for a black and white image.
+            Default value is `DATASET_CHANNELS`.
         """
-        super(FromRGB, self).__init__()
-        self.conv = NormalConv2d(3, out_channels, 1)
+        super(FromColorChannels, self).__init__()
+        self.conv = NormalConv2d(color_channels, out_channels, 1)
         self.act = nn.LeakyReLU(0.2)
 
     def forward(self, x):
         """
-        Receives an image tensor with 3 channels and returns a tensor with `out_channels`.
+        Receives an image tensor with ertain number of channels and returns a tensor
+        with `out_channels`.
 
         Parameters
         ----------
         x: tensor
-            Tensor image with 3 channels (RGB).
+            Tensor image.
 
         Returns
         -------
@@ -96,10 +103,10 @@ class FromRGB(nn.Module):
         return self.act(x)
 
 
-class ToRGB(nn.Module):
+class ToColorChannels(nn.Module):
     """
-    Wrapper class to a convolutional layer that takes an input tensor
-    with `input_channels` and outputs a tensor with 3 channels.
+    Wrapper class to a convolutional layer that takes an input tensor and outputs a tensor
+    with the specified number of channels.
 
     Attributes
     ----------
@@ -109,21 +116,24 @@ class ToRGB(nn.Module):
     Methods
     -------
     forward(x)
-        Outputs a new tensor with 3 channels (RGB).
+        Outputs a new tensor with a specified number of channels.
     """
-    def __init__(self, input_channels, *args, **kwargs):
+    def __init__(self, input_channels, color_channels=DATASET_CHANNELS):
         """
         Parameters
         ----------
         input_channels: int
-            Number of channels of the input tensor
+            Number of channels of the input tensor.
+        color_channels: int, options
+            Number of channels in the color scheme of the trainig dataset.
+            Default value is `DATASET_CHANNELS`.
         """
-        super(ToRGB, self).__init__(*args, **kwargs)
-        self.conv = NormalConv2d(input_channels, 3, 1)
+        super(ToColorChannels, self).__init__()
+        self.conv = NormalConv2d(input_channels, color_channels, 1)
 
     def forward(self, x):
         """
-        Outputs a tensor with 3 channels (RGB) after applying a convolution to the input
+        Outputs a tensor with a specified number of channels after applying a convolution to the input
         tensor `x`.
 
         Parameters
@@ -134,6 +144,6 @@ class ToRGB(nn.Module):
         Returns
         -------
         tensor
-            The new tensor with 3 channels (RGB) resulting of convoluting the input.
+            The new tensor with a new number of channels resulting of convoluting the input.
         """
         return self.conv(x)

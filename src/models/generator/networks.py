@@ -7,9 +7,9 @@ from torch import nn
 import torch
 import random
 import torch.nn.functional as F
-from src.models.generator.blocks import FirstSynthesisBlock, SynthesisBlock
-from src.models.utils import NormalLinear, ToRGB
-from src.settings import BASE_DIM
+from models.generator.blocks import FirstSynthesisBlock, SynthesisBlock
+from models.utils import NormalLinear, ToColorChannels
+from settings import BASE_DIM
 
 
 class MappingNetwork(nn.Module):
@@ -64,7 +64,7 @@ class SynthesisNetwork(nn.Module):
     conv_blocks: ModuleList
         A list of synthesis blocks.
     to_rgb: ModuleList
-        A list of ToRGB layers.
+        A list of ToColorChannels layers.
 
     Methods
     -------
@@ -88,15 +88,15 @@ class SynthesisNetwork(nn.Module):
         ])
 
         self.to_rgb = nn.ModuleList([
-            ToRGB(BASE_DIM),
-            ToRGB(BASE_DIM),
-            ToRGB(BASE_DIM),
-            ToRGB(BASE_DIM),
-            ToRGB(BASE_DIM // 2),
-            ToRGB(BASE_DIM // 4),
-            ToRGB(BASE_DIM // 8),
-            ToRGB(BASE_DIM // 16),
-            ToRGB(BASE_DIM // 32),
+            ToColorChannels(BASE_DIM),
+            ToColorChannels(BASE_DIM),
+            ToColorChannels(BASE_DIM),
+            ToColorChannels(BASE_DIM),
+            ToColorChannels(BASE_DIM // 2),
+            ToColorChannels(BASE_DIM // 4),
+            ToColorChannels(BASE_DIM // 8),
+            ToColorChannels(BASE_DIM // 16),
+            ToColorChannels(BASE_DIM // 32),
         ])
 
     def _upsample2x(self, image):

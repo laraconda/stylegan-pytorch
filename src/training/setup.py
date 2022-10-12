@@ -6,12 +6,12 @@ from sys import stderr
 from datetime import datetime
 import torch
 from torch.optim import Adam
-from src.settings import DISC_LRATE, BETAS, EPS
-from src.settings import WEIGHT_DECAY, STGAN_LRATE, MAPPN_NETWORK_LR, CHECKPOINTS_PATH
-from src.settings import ALPHA_STEPS, CHECKPOINT_NAME
-from src.models.discriminator import Discriminator
-from src.models.generator.networks import StyleGAN
-from src.device import device
+from settings import DISC_LRATE, BETAS, EPS
+from settings import WEIGHT_DECAY, STGAN_LRATE, MAPPN_NETWORK_LR, CHECKPOINTS_PATH
+from settings import ALPHA_STEPS, CHECKPOINT_NAME
+from models.discriminator import Discriminator
+from models.generator.networks import StyleGAN
+from device import device
 
 
 def get_checkpoint():

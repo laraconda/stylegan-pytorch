@@ -6,7 +6,7 @@ from math import log2
 from torch import nn
 import torch
 import torch.nn.functional as F
-from src.models.utils import NormalConv2d, NormalLinear, FromRGB
+from models.utils import NormalConv2d, NormalLinear, FromColorChannels
 
 
 class DiscriminatorBlock(nn.Module):
@@ -158,7 +158,7 @@ class Discriminator(nn.Module):
     blocks: ModuleList
         List of discriminator blocks to process different resolution of image tensors.
     from_rgb: ModuleList
-        List of FromRGB instances to convert 3-channeled RGB image tensors into
+        List of FromColorChannels instances to convert 3-channeled RGB image tensors into
         multi-channeled image tensors.
 
     Methods
@@ -185,15 +185,15 @@ class Discriminator(nn.Module):
         ])
 
         self.from_rgb = nn.ModuleList([
-            FromRGB(16),
-            FromRGB(32),
-            FromRGB(64),
-            FromRGB(128),
-            FromRGB(256),
-            FromRGB(512),
-            FromRGB(512),
-            FromRGB(512),
-            FromRGB(512)
+            FromColorChannels(16),
+            FromColorChannels(32),
+            FromColorChannels(64),
+            FromColorChannels(128),
+            FromColorChannels(256),
+            FromColorChannels(512),
+            FromColorChannels(512),
+            FromColorChannels(512),
+            FromColorChannels(512)
         ])
 
     def _downsample_half(self, image):

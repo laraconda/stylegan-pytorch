@@ -5,13 +5,13 @@ to a certain batch.
 """
 
 from torch import tensor, stack
-from src.device import device
+from device import device
 from torch.utils.tensorboard import SummaryWriter
-from src.models.generator.networks import StyleGAN
-from src.models.discriminator import Discriminator
-from src.settings import (
+from models.generator.networks import StyleGAN
+from models.discriminator import Discriminator
+from settings import (
     MAPPN_NETWORK_LR, EPS, GRADIENT_PENALTY_LAMBDA, STD, STGAN_LRATE,
-    DISC_LRATE, WEIGHT_DECAY, N_SAMPLES_RES
+    DISC_LRATE, WEIGHT_DECAY, N_SAMPLES_RES, DATASET_CHANNELS
 )
 
 
@@ -69,8 +69,8 @@ class MyWriter:
         tensor
             The unnormalized image.
         """
-        MEAN = tensor([0.5, 0.5, 0.5]).to(device)
-        STD = tensor([0.5, 0.5, 0.5]).to(device)
+        MEAN = tensor([0.5] * DATASET_CHANNELS).to(device)
+        STD = tensor([0.5] * DATASET_CHANNELS).to(device)
         return image * STD[:, None, None] + MEAN[:, None, None]
 
     def write_batch(self, training_batch_info):

@@ -2,7 +2,14 @@
 Constants to control the behavior of the networks and the training are found here.
 """
 
-
+# importing dataset
+# from torchvision.datasets import CIFAR100
+from torchvision.datasets import FashionMNIST
+#: Image dataset used to train the networks.
+DATASET = FashionMNIST
+#: Number of color channels in the images of `DATASET`. Usually 3 channels for
+#: color images, 1 for black and white images.
+DATASET_CHANNELS = 1
 #: Standard deviation for the layers with nornal initialization of parameters.
 STD = 0.07
 #: Number of channels of the tensors representing images inside a network.
@@ -53,9 +60,11 @@ MAPPN_NETWORK_LR = LRATE * 0.4
 DISC_LRATE = LRATE
 
 #: The image resolutions the networks are going to be trained with.
-#: This variable does not affect the layers/blocks of the networks, only determines
+#: This constant does not affect the layers/blocks of the networks, only determines
 #: the resolutions for the training. To change the resolution accepted by the blocks
 #: it is necessary to change the code of the models.
+#: If you modify this constant, you also need to modify `SAVE_EVERY_X_ITERATIONS` and
+#: `RES_BATCH_SIZE`.
 RESOLUTIONS = [8, 16, 32, 64, 128, 256, 512]
 
 #: Save a checkpoint every x iteration depending on what resolution the training is at.

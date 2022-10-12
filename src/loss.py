@@ -3,7 +3,7 @@ Implementation of necessary functions used on the computation of the Wasserstein
 """
 
 import torch
-from src.device import device
+from device import device
 
 
 def get_gradient(disc, real_images, fake_images):

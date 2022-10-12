@@ -4,7 +4,7 @@ Definition of the function used to save a checkpoint of a training session.
 
 from sys import stderr
 import torch
-from src.settings import CHECKPOINTS_PATH
+from settings import CHECKPOINTS_PATH
 
 
 def save_checkpoint(

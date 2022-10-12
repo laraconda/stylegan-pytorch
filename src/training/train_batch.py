@@ -3,9 +3,9 @@ Definition of functions used to train both networks.
 """
 
 import torch
-from src.settings import BASE_DIM, GRADIENT_PENALTY_LAMBDA
-from src.loss import gradient_penalty
-from src.device import device
+from settings import BASE_DIM, GRADIENT_PENALTY_LAMBDA
+from loss import gradient_penalty
+from device import device
 
 
 def train_disc_batch(disc, real_images, d_optim, stgan, batch_size):

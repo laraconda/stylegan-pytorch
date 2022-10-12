@@ -4,9 +4,9 @@ Definition of different blocks for the networks that compose StyleGAN.
 
 import torch
 from torch import nn
-from src.models.utils import NormalConv2d, NormalLinear
-from src.settings import BASE_DIM
-from src.device import device
+from models.utils import NormalConv2d, NormalLinear
+from settings import BASE_DIM
+from device import device
 
 
 class AdaIn(nn.Module):
