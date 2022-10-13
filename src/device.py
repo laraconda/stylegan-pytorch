@@ -6,5 +6,7 @@ not declared on settings.py to improve readability when importing.
 
 import torch
 
+#: :meta hide-value:
+#:
 #: Type of the chosen device where the heavy computation is going to take place.
 device = 'cuda' if torch.cuda.is_available() else 'cpu'

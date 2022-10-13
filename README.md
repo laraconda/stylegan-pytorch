@@ -7,10 +7,16 @@ Easy to read implementation of StyleGAN in Pytorch.
 
 ## Training
 #### Run (while on the root folder):
-  ``python src/training/train.py``
+    python src/training/train.py``
 
 #### Visualizing with tensorboard:
     tensorboard --logdir=summaries/[name]
+
+#### Generate documentation
+Inside the /doc folder:
+    make html
+To delete the html files:
+    make clean
 
 #### Based heavily on the works of:
 - Tero Karras et al. (DOI: 10.1109/TPAMI.2020.2970919)
