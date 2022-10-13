@@ -1,24 +1,43 @@
 # StyleGAN Pytorch
-Easy to read implementation of StyleGAN in Pytorch.
+Easy to read and documented implementation of StyleGAN in Pytorch.
+
 ### Requirements:
-- pytorch
+- torch
+- torchvision
 - tensorboard
-- sphinx (for documentation)
+- torchsummary
+
+For documentation:
+- sphinx
+- numpydoc
+- sphinx-rtd-theme
 
 ## Training
-#### Run (while on the root folder):
-    python src/training/train.py``
+#### Run:
+Before starting the training process, make sure the settings (found in src/settings.py) are correctly configured for your needs.
+
+    python src/training/train.py
 
 #### Visualizing with tensorboard:
-    tensorboard --logdir=summaries/[name]
+On a new terminal:
 
-#### Generate documentation
+    tensorboard --logdir=summaries/[summary-name]
+
+## Generate documentation
 Inside the /doc folder:
+
     make html
+
 To delete the html files:
+
     make clean
 
-#### Based heavily on the works of:
+## Important
+This project only works with square images.
+
+This is an implementation of StyleGAN 1.
+
+## Based on the works of:
 - Tero Karras et al. (DOI: 10.1109/TPAMI.2020.2970919)
 - Sharon Zhou et al. (https://www.coursera.org/specializations/generative-adversarial-networks-gans)
 - SiskonEmilia (https://github.com/SiskonEmilia/StyleGAN-PyTorch)

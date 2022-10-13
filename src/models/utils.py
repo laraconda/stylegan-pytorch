@@ -133,8 +133,8 @@ class ToColorChannels(nn.Module):
 
     def forward(self, x):
         """
-        Outputs a tensor with a specified number of channels after applying a convolution to the input
-        tensor `x`.
+        Outputs a tensor with a specified number of channels after applying a convolution
+        to the input tensor `x`.
 
         Parameters
         ----------

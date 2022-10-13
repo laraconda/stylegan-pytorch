@@ -5,6 +5,8 @@ Welcome to the documentation of StyleGAN PyTorch!
 
 This is an implementation focused on the *training* of the StyleGAN architecture using PyTorch.
 
+It is important to note that this project only works with square images.
+
 Train
 -----
 Before starting the training process, make sure the settings (found in src/settings.py) are correctly configured for your needs.
@@ -35,3 +37,9 @@ Loss
 ^^^^
 The loss implemented here is the Wasserstein Loss.
 If you want to change the implementation, besides changing the training process you may also need to make changes directly to the models.
+
+
+Documentation
+-------------
+To delete the generated files by sphinx, inside the docs/ folder run:
+``make clean``
